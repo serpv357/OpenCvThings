@@ -5,11 +5,12 @@ from PIL import Image, ImageFont, ImageDraw
 import dither
 
 def main():
-  path = ""
-  down_path = ""
+  path = "/Users/sergei/Downloads/qt_2.jpeg"
+  down_path = "/Users/sergei/Documents/Repos/OpenCVThings/OpenCvThings/images/qtqtqt.jpeg"
   img = cv2.imread(path)
   grayImg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-  ditherImage = dither.jjndDither(img)
+  #ditherImage = dither.ditherColorStucki(img, [(29, 233, 233), (94, 255, 0), (202, 20, 117)])
+  ditherImage = dither.ditherColorFloSte(img, [(128, 0, 128), (0, 128, 128), (255, 255, 224)])
   
   # cv2.imshow('Original image', img)
   # cv2.imshow('Gray image', grayImg)

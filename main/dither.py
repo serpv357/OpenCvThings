@@ -3,97 +3,126 @@ import numpy as np
 from bisect import bisect_left
 import math
 
-overflow_counter = 0
-
 def main():
   pass
 
-def jjndDitherColor(old_image: cv2.Mat) -> cv2.Mat:
-  h = old_image.shape[0]
-  w = old_image.shape[1]
-  new_image = old_image.copy()
+def ditherColorStucki(img: cv2.Mat, pallete: list[tuple[int]], pallete_conversion_map : dict[tuple[int], tuple[int]] = None) -> cv2.Mat:
+  '''
+  Assumes input is BGR image, and returns a BGR image dithered with Stucki dithering.
+
+  Takes a pallete parameter which is a list of 3-length tuples representing BGR values which are the possible colors for the final image.
+  
+  If the optional pallete_conversion_map param is passed in it is used to convert pixels which match its keys into its values for the final image, post-dithering.
+  So if a pixel close to pure red would be set as red in normal dithering, and you mapped red to teal in pallete_conversion_map, it would instead be teal in the final image.
+  '''
+  if (img.ndim < 3):
+    raise TypeError('Image not BGR')
+
+  h = img.shape[0]
+  w = img.shape[1]
   for y in range(h):
     for x in range(w):
-      old = old_image[y][x]
-      new = take_closest_color([(128, 0, 128), (0, 128, 128), (255, 255, 224)], old)
-      new_image[y][x][0] = new[0]
-      new_image[y][x][1] = new[1]
-      new_image[y][x][2] = new[2]
-      error = old - new
-      apply_error_color(old_image, x+1, y, error * 7/16)
-      apply_error_color(old_image, x-1, y+1, error * 3/16)
-      apply_error_color(old_image, x, y+1, error * 5/16)
-      apply_error_color(old_image, x+1, y+1, error * 1/16)
-    
-  return new_image
+      old_p = img[y][x]
+      new_p = __take_closest_color(old_p, pallete)
+      error = old_p - new_p
+      divd_error = error / 42
 
-def jjndDither(old_image: cv2.Mat) -> cv2.Mat:
-  old_image = cv2.cvtColor(old_image, cv2.COLOR_BGR2GRAY)
-  h = old_image.shape[0]
-  w = old_image.shape[1]
-  new_image = np.zeros((h, w), dtype=np.uint8)
+
+      if pallete_conversion_map != None:
+        if new_p in pallete_conversion_map:
+          new_p = pallete_conversion_map[new_p]
+      img[y][x] = new_p
+
+      __applyErrorColorStucki(img, x, y, divd_error)
+  
+  return img
+
+def ditherColorFloSte(img: cv2.Mat, pallete: list[tuple[int]], pallete_conversion_map : dict[tuple[int], tuple[int]] = None) -> cv2.Mat:
+  '''
+  Assumes input is BGR image, and returns a BGR image dithered with Floyd-Steinberg Dithering.
+
+  Takes a pallete parameter which is a list of 3-length tuples representing BGR values which are the possible colors for the final image.
+  
+  If the optional pallete_conversion_map param is passed in it is used to convert pixels which match its keys into its values for the final image, post-dithering.
+  So if a pixel close to pure red would be set as red in normal dithering, and you mapped red to teal in pallete_conversion_map, it would instead be teal in the final image.
+  '''
+  if (img.ndim < 3):
+    raise TypeError('Image not BGR')
+
+  h = img.shape[0]
+  w = img.shape[1]
   for y in range(h):
     for x in range(w):
-      old = old_image[y][x]
-      new = take_closest([0, 255], old)
-      new_image[y][x] = new
-      error = old - new
-      apply_error(old_image, x+1, y, error * 7/16)
-      apply_error(old_image, x-1, y+1, error * 3/16)
-      apply_error(old_image, x, y+1, error * 5/16)
-      apply_error(old_image, x+1, y+1, error * 1/16)
-    
-  return new_image
+      old_p = img[y][x]
+      new_p = __take_closest_color(old_p, pallete)
+      error = old_p - new_p
+      divd_error = error / 16
 
-def apply_error_color(arr, x, y, error):
+
+      if pallete_conversion_map != None:
+        if new_p in pallete_conversion_map:
+          new_p = pallete_conversion_map[new_p]
+      img[y][x] = new_p
+
+      __applyErrorColorFloSte(img, x, y, divd_error)
+  
+  return img
+
+def __applyErrorColorFloSte(img, x, y, divd_error):
+  __applyErrorColor(img, x + 1, y, 7 * divd_error)
+  __applyErrorColor(img, x - 1, y + 1, 3 * divd_error)
+  __applyErrorColor(img, x, y + 1, 5 * divd_error)
+  __applyErrorColor(img, x + 1, y + 1,  divd_error)
+
+
+def __applyErrorColorStucki(img, x, y, divd_error):
+  __applyErrorColor(img, x + 1, y, divd_error * 3)
+  __applyErrorColor(img, x + 2, y, divd_error * 1)
+  __applyErrorColor(img, x - 2, y + 1, divd_error * 1)
+  __applyErrorColor(img, x - 1, y + 1, divd_error * 2)
+  __applyErrorColor(img, x, y + 1, divd_error * 3)
+  __applyErrorColor(img, x + 1, y + 1, divd_error * 2)
+  __applyErrorColor(img, x + 2, y + 1, divd_error * 1)
+  __applyErrorColor(img, x - 2, y + 2, divd_error * 0)
+  __applyErrorColor(img, x - 1, y + 2, divd_error * 1)
+  __applyErrorColor(img, x, y + 2, divd_error * 2)
+  __applyErrorColor(img, x + 1, y + 2, divd_error * 1)
+  __applyErrorColor(img, x + 2, y + 2, divd_error)
+
+def __applyErrorColor(img, x, y, error):
   b, g, r = error
   for i, c in enumerate([b, g, r]):
-    if (0 < y < len(arr)):
-      if (0 < x < len(arr[0])):
-        end = arr[y][x][i] + c
-        if end > 255 or end < 0:
+    if (0 < y < len(img)):
+      if (0 < x < len(img[0])):
+        end = img[y][x][i] + c
+        if end > 255:
+          img[y][x][i] = 255
           return
-        arr[y][x][i] += error[i]
+        if end < 0:
+          img[y][x][i] = 0
+          return
+        img[y][x][i] = round(img[y][x][i] + c)
 
-def apply_error(arr, x, y, error):
-  if (0 < y < len(arr)):
-    if (0 < x < len(arr[0])):
-      end = arr[y][x] + error
-      if end > 255 or end < 0:
-        return
-      arr[y][x] += error
 
-def take_closest(myList, myNumber):
-    """
-    Assumes myList is sorted. Returns closest value to myNumber.
+def __take_closest_color(p, pallete: list[tuple[int]]) -> tuple[int]:
+  max_diff = __getDiffBetweenPixels(p, pallete[0])
+  closest = pallete[0]
+  for c in pallete[1:]:
+    if __getDiffBetweenPixels(p, c) < max_diff:
+      closest = c
+  return closest
 
-    If two numbers are equally close, return the smallest number.
-    """
-    pos = bisect_left(myList, myNumber)
-    if pos == 0:
-        return myList[0]
-    if pos == len(myList):
-        return myList[-1]
-    before = myList[pos - 1]
-    after = myList[pos]
-    if after - myNumber < myNumber - before:
-        return after
-    else:
-        return before
+def __getDiffBetweenPixels(p1, p2):
+  b1, g1, r1 = p1
+  b2, g2, r2 = p2
+  return math.sqrt((b1 - b2)**2 + (g1 - g2)**2 + (r1 - r2)**2)
 
-def take_closest_color(myList, p):
-  b, g, r = p
-  index_of_closest = 0
-  maxdiff = 9999999999
-  for i, color in enumerate(myList):
-    cb = color[0]
-    cg = color[1]
-    cr = color[2]
-    if math.sqrt((r - cr)**2 + (g - cg)**2 + (b - cb)**2) < maxdiff:
-      maxdiff = math.sqrt((r - cr)**2 + (g - cg)**2 + (b - cb)**2)
-      index_of_closest = i
-  return myList[index_of_closest]
 
+def ditherGrayStucki(imag: cv2.Mat, ) -> cv2.Mat:
+  '''
+  Assumes input is BGR or Grayscale image, and returns a Grayscale image dithered with Stucki dithering.
+  '''
+  pass
 
 
 if __name__ == '__main__':
