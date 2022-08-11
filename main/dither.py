@@ -76,17 +76,17 @@ def __applyErrorColorFloSte(img, x, y, divd_error):
 
 
 def __applyErrorColorStucki(img, x, y, divd_error):
-  __applyErrorColor(img, x + 1, y, divd_error * 3)
-  __applyErrorColor(img, x + 2, y, divd_error * 1)
-  __applyErrorColor(img, x - 2, y + 1, divd_error * 1)
-  __applyErrorColor(img, x - 1, y + 1, divd_error * 2)
-  __applyErrorColor(img, x, y + 1, divd_error * 3)
-  __applyErrorColor(img, x + 1, y + 1, divd_error * 2)
-  __applyErrorColor(img, x + 2, y + 1, divd_error * 1)
-  __applyErrorColor(img, x - 2, y + 2, divd_error * 0)
-  __applyErrorColor(img, x - 1, y + 2, divd_error * 1)
-  __applyErrorColor(img, x, y + 2, divd_error * 2)
-  __applyErrorColor(img, x + 1, y + 2, divd_error * 1)
+  __applyErrorColor(img, x + 1, y, divd_error * 8)
+  __applyErrorColor(img, x + 2, y, divd_error * 4)
+  __applyErrorColor(img, x - 2, y + 1, divd_error * 2)
+  __applyErrorColor(img, x - 1, y + 1, divd_error * 4)
+  __applyErrorColor(img, x, y + 1, divd_error * 8)
+  __applyErrorColor(img, x + 1, y + 1, divd_error * 4)
+  __applyErrorColor(img, x + 2, y + 1, divd_error * 2)
+  __applyErrorColor(img, x - 2, y + 2, divd_error)
+  __applyErrorColor(img, x - 1, y + 2, divd_error * 2)
+  __applyErrorColor(img, x, y + 2, divd_error * 4)
+  __applyErrorColor(img, x + 1, y + 2, divd_error * 2)
   __applyErrorColor(img, x + 2, y + 2, divd_error)
 
 def __applyErrorColor(img, x, y, error):

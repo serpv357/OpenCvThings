@@ -8,7 +8,7 @@ overflow_counter = 0
 def main():
   pass
 
-def jjndDitherColor(old_image: cv2.Mat) -> cv2.Mat:
+def jjndDitherColorFloste(old_image: cv2.Mat) -> cv2.Mat:
   h = old_image.shape[0]
   w = old_image.shape[1]
   new_image = old_image.copy()
@@ -27,7 +27,7 @@ def jjndDitherColor(old_image: cv2.Mat) -> cv2.Mat:
     
   return new_image
 
-def jjndDither(old_image: cv2.Mat) -> cv2.Mat:
+def jjndDitherFloste(old_image: cv2.Mat) -> cv2.Mat:
   old_image = cv2.cvtColor(old_image, cv2.COLOR_BGR2GRAY)
   h = old_image.shape[0]
   w = old_image.shape[1]
