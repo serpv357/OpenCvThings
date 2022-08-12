@@ -3,31 +3,23 @@ import dither
 import os
 
 def main():
-  imgName = "dali.jpeg"
+  imgName = "rain_temple.jpeg"
   path = os.path.join("images", "original", imgName)
-  floste_path = os.path.join("images", "processed", f"floste_{imgName}")
   stucki_path = os.path.join("images", "processed", f"stucki_{imgName}")
-  stucki_pallete_converted_path = os.path.join("images", "processed", f"stucki_pconverted_{imgName}")
+  #rect_path = os.path.join("images", "processed", f"stucki_{imgName}")
+
   img = cv2.imread(path)
-  img2 = img.copy()
-  img3 = img.copy()
-  # flosteDitherImage = dither.ditherColorFloSte(img, [(18, 18, 216), (216, 104, 18), (255, 255, 224)])
-  stuckiDitherImage = dither.ditherColorStucki(img2, [(167, 51, 254), (29, 201, 171), (237, 206, 176)])
-  # stuckiPConvertedDitherImage = dither.ditherColorStucki(
-  #   img3, 
-  #   [(146, 220, 238), (72, 70, 43), (135, 159, 160)], 
-  #   {
-  #     (146, 220, 238): (255, 201, 21)
-  #   }
-  #   )
-  # stucki_pallete_converted_path
+
+  stuckiDitherImage = dither.ditherColorStucki(img, [(121, 20, 116), (49, 120, 124), (213, 255, 241)])
+
+  #rectDitherImage = dither.ditherColorSectorFloSte(img2, 3, 3, [(128, 0, 128), (55, 29, 50), (255, 255, 224)])
+
+  # cv2.imshow('rectangular_dither', rectDitherImage)
+  # cv2.imwrite(rect_path, rectDitherImage)
   
-  #cv2.imshow('floste', flosteDitherImage)
   cv2.imshow('stucki', stuckiDitherImage)
-  #cv2.imshow('stucki_pconverted', stuckiPConvertedDitherImage)
-  #cv2.imwrite(floste_path, flosteDitherImage)
   cv2.imwrite(stucki_path, stuckiDitherImage)
-  #cv2.imwrite(stucki_pallete_converted_path, stuckiPConvertedDitherImage)
+
 
   cv2.waitKey(0)
   cv2.destroyAllWindows()
