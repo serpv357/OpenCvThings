@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from bisect import bisect_left
 import math
+import datetime
+import time
+import imageio
 
 STUCKI_ERROR_DISTRIBUTION = ((2, 0), np.array([
   [0, 0, 0, 8, 4],
@@ -11,6 +14,43 @@ STUCKI_ERROR_DISTRIBUTION = ((2, 0), np.array([
 
 def main():
   pass
+
+def ditherGif(path, pallete):
+  dithered_frames = []
+  gif = imageio.mimread(path)
+  for img in gif:
+    img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+    # cv2.imshow('image', img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    dithered_img = ditherColorStucki(img, pallete)
+    # cv2.imshow('image', dithered_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    dithered_frames.append(dithered_img)
+  
+  return dithered_frames
+
+  
+
+def ditherVideo(vid_capture, pallete, out_path):
+  frame_width = int(vid_capture.get(3))
+  frame_height = int(vid_capture.get(4))
+  frame_size = (frame_width,frame_height)
+  fps = vid_capture.get(5)
+  length = int(vid_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+  fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+  output = cv2.VideoWriter(out_path, fourcc, fps, frame_size)
+  while(vid_capture.isOpened()):
+    ret, frame = vid_capture.read()
+    if ret == True:
+      ditheredFrame = ditherColorStucki(frame, pallete)
+      output.write(ditheredFrame)
+    else:
+      print('Stream disconnected')
+      break
+  vid_capture.release()
+  output.release()
 
 def ditherColorSectorFloSte(img: cv2.Mat, width: int, height: int, pallete: list[tuple[int]]) -> cv2.Mat:
   if (img.ndim < 3):
