@@ -18,7 +18,10 @@ def main():
 def ditherGif(path, pallete):
   dithered_frames = []
   gif = imageio.mimread(path)
-  for img in gif:
+  print('length: ', len(gif))
+
+  for i, img in enumerate(gif):
+    print(i)
     img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
     # cv2.imshow('image', img)
     # cv2.waitKey(0)
@@ -224,11 +227,13 @@ def __applyErrorColor(img, x, y, error):
 
 
 def __take_closest_color(p, pallete: list[tuple[int]]) -> tuple[int]:
-  max_diff = __getDiffBetweenPixels(p, pallete[0])
+  min_diff = __getDiffBetweenPixels(p, pallete[0])
   closest = pallete[0]
   for c in pallete[1:]:
-    if __getDiffBetweenPixels(p, c) < max_diff:
+    new_diff = __getDiffBetweenPixels(p, c)
+    if new_diff < min_diff:
       closest = c
+      min_diff = new_diff 
   return closest
 
 def __getDiffBetweenPixels(p1, p2):
